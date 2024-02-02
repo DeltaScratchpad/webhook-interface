@@ -141,7 +141,7 @@ func GetIntValue(event *go_system_api.EventData, field string) (int, error) {
 		}
 	default:
 		if value, ok := event.Derived[field]; ok {
-			log.Printf("field type: %T\n", value)
+			//log.Printf("field type: %T\n", value)
 			switch value.(type) {
 			case int:
 				return value.(int), nil

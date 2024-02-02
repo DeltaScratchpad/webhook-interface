@@ -57,6 +57,8 @@ func TestHandlerServer(t *testing.T) {
 	var target_listener = "9100"
 	var dump_listener = "9101"
 
+	t.Log("Testing for a successful comparison.")
+
 	// This function tests the WebhookQueryHandler, by creating an instance of it, then sending an example request
 	// to the SimpleWebHook Listener function. The WebhookQueryHandler should receive the request and process it.
 
@@ -125,6 +127,8 @@ func TestShouldNotSendWebhook(t *testing.T) {
 	var server_port = "9102"
 	var target_listener = "9103"
 	var dump_listener = "9104"
+
+	t.Log("Testing for a negative comparison.")
 
 	// This function tests the WebhookQueryHandler, by creating an instance of it, then sending an example request
 	// to the SimpleWebHook Listener function. The WebhookQueryHandler should not receive the request and process it.
@@ -195,6 +199,8 @@ func TestStringComparison(t *testing.T) {
 	var server_port = "9105"
 	var target_listener = "9106"
 	var dump_listener = "9107"
+
+	t.Log("Testing for a successful string comparison.")
 
 	// This test sends a processing event with a string field rather than an integer field.
 	// This function tests the WebhookQueryHandler, by creating an instance of it, then sending an example request

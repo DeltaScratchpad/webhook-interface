@@ -108,7 +108,7 @@ func (q *WebhookQueryHandler) HandleQuery(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	log.Println("Handling query")
+	//log.Println("Handling query")
 
 	defer func() { // Ensure the event will be forwarded regardless of errors.
 		go func() {
@@ -137,10 +137,10 @@ func (q *WebhookQueryHandler) HandleQuery(w http.ResponseWriter, r *http.Request
 		if err == nil {
 			if relation == "=" {
 				result = value == threshold_str
-				log.Printf("Result: %t, Value: %s\n", result, value)
+				//log.Printf("Result: %t, Value: %s\n", result, value)
 			}
 		} else {
-			log.Printf("Error getting value: %s for fieldname: %s\n", err, field)
+			// We didn't find the field, so we can't compare it.
 			return
 		}
 	}
@@ -158,7 +158,6 @@ func (q *WebhookQueryHandler) HandleQuery(w http.ResponseWriter, r *http.Request
 			return
 		}
 	}
-	return
 }
 
 var args_parser = regexp.MustCompile(`(?P<field>\w+)(?P<relation>[><=]{1,2})(?P<threshold>[\d\w]+)\s(?P<webhook>.+)`)
