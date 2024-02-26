@@ -22,16 +22,25 @@ func main() {
 	if port == "" {
 		port = "80"
 	}
+	var webhookState webhook_tracker.WebhookState
+	var db_url = os.Getenv("DB_URL")
+	if db_url == "" {
+		log.Printf("No DB_URL provided, using in-memory state")
+		webhookState = webhook_tracker.NewLocalWebhookState()
+	} else {
+		log.Printf("Using MySQL state")
+		webhookState = webhook_tracker.NewMySqlState(db_url)
+	}
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
-	CreateServer(nil, port, done)
+	CreateServer(nil, port, done, webhookState)
 }
 
-func CreateServer(addr *string, port string, done <-chan os.Signal) {
+func CreateServer(addr *string, port string, done <-chan os.Signal, state webhook_tracker.WebhookState) {
 	var handler = WebhookQueryHandler{
-		webhookState: webhook_tracker.NewLocalWebhookState(),
+		webhookState: state,
 		waitGroup:    new(sync.WaitGroup),
 	}
 
@@ -44,7 +53,6 @@ func CreateServer(addr *string, port string, done <-chan os.Signal) {
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("OK"))
-		return
 	})
 
 	if addr != nil {

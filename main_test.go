@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	go_system_api "github.com/DeltaScratchpad/go-system-api"
+	webhook_tracker "github.com/DeltaScratchpad/webhook-interface/webhook-tracker"
 	"log"
 	"net/http"
 	"os"
@@ -67,7 +68,7 @@ func TestHandlerServer(t *testing.T) {
 	done := make(chan os.Signal, 1)
 	dump := make(chan bool, 1)
 
-	go CreateServer(&addr, server_port, done)
+	go CreateServer(&addr, server_port, done, webhook_tracker.NewLocalWebhookState())
 	go simpleWebhookListener(c, target_listener)
 	go simpleWebhookListener(dump, dump_listener)
 
@@ -138,7 +139,7 @@ func TestShouldNotSendWebhook(t *testing.T) {
 	done := make(chan os.Signal, 1)
 	dump := make(chan bool, 1)
 
-	go CreateServer(&addr, server_port, done)
+	go CreateServer(&addr, server_port, done, webhook_tracker.NewLocalWebhookState())
 	go simpleWebhookListener(c, target_listener)
 	go simpleWebhookListener(dump, dump_listener)
 
@@ -211,7 +212,7 @@ func TestStringComparison(t *testing.T) {
 	done := make(chan os.Signal, 1)
 	dump := make(chan bool, 1)
 
-	go CreateServer(&addr, server_port, done)
+	go CreateServer(&addr, server_port, done, webhook_tracker.NewLocalWebhookState())
 	go simpleWebhookListener(c, target_listener)
 	go simpleWebhookListener(dump, dump_listener)
 
@@ -282,7 +283,7 @@ func sendEvent(event *go_system_api.ProcessingEvent, url string) error {
 		if err == nil && r.StatusCode == 200 {
 			return nil
 		} else {
-			log.Fatalf("Error forwarding event: %s \n", err)
+			log.Printf("Error forwarding event: %s \n", err)
 		}
 	}
 	return err

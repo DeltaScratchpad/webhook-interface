@@ -36,7 +36,7 @@ func LogError(err string, event *go_system_api.ProcessingEvent) {
 			if err == nil && r.StatusCode == 200 {
 				return
 			} else {
-				log.Fatalf("Error logging error: %s \n", err)
+				log.Printf("Error logging error: %s \n", err)
 			}
 		}
 	} else {
@@ -60,7 +60,7 @@ func ForwardEvent(event *go_system_api.ProcessingEvent) {
 		if err == nil && r.StatusCode == 200 {
 			return
 		} else {
-			log.Fatalf("Error forwarding event: %s \n", err)
+			log.Printf("Error forwarding event: %s \n", err)
 		}
 	}
 
@@ -80,14 +80,12 @@ func ParseProcessingEvent(w http.ResponseWriter, r *http.Request) (go_system_api
 
 func InternalServerErrorHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusInternalServerError)
-	w.Write([]byte("Internal Server Error"))
-	return
+	_, _ = w.Write([]byte("Internal Server Error"))
 }
 
 func InvalidHttpMethodHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusMethodNotAllowed)
-	w.Write([]byte("Method Not Allowed"))
-	return
+	_, _ = w.Write([]byte("Method Not Allowed"))
 }
 
 func GetStringValue(event *go_system_api.EventData, field string) (string, error) {
@@ -142,13 +140,13 @@ func GetIntValue(event *go_system_api.EventData, field string) (int, error) {
 	default:
 		if value, ok := event.Derived[field]; ok {
 			//log.Printf("field type: %T\n", value)
-			switch value.(type) {
+			switch value := value.(type) {
 			case int:
-				return value.(int), nil
+				return value, nil
 			case float64:
-				return int(value.(float64)), nil
+				return int(value), nil
 			case string:
-				return strconv.Atoi(value.(string))
+				return strconv.Atoi(value)
 			default:
 				return 0, fmt.Errorf("field %s was incompatible type", field)
 			}

@@ -4,6 +4,7 @@ go 1.21.6
 
 require (
 	github.com/DeltaScratchpad/go-system-api v0.1.1
+	github.com/go-sql-driver/mysql v1.7.1
 	github.com/json-iterator/go v1.1.12
 )
 
