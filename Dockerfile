@@ -12,4 +12,4 @@ WORKDIR /app
 COPY --from=builder /app/webhook-interface /app/webhook-interface
 
 
-ENTRYPOINT ["/app/webhook-interface"]
+ENTRYPOINT ["/app/webhook-interface", "server"]

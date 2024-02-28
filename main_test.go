@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	go_system_api "github.com/DeltaScratchpad/go-system-api"
+	"github.com/DeltaScratchpad/webhook-interface/server"
 	webhook_tracker "github.com/DeltaScratchpad/webhook-interface/webhook-tracker"
 	"log"
 	"net/http"
@@ -68,7 +69,7 @@ func TestHandlerServer(t *testing.T) {
 	done := make(chan os.Signal, 1)
 	dump := make(chan bool, 1)
 
-	go CreateServer(&addr, server_port, done, webhook_tracker.NewLocalWebhookState())
+	go server.CreateServer(&addr, server_port, done, webhook_tracker.NewLocalWebhookState())
 	go simpleWebhookListener(c, target_listener)
 	go simpleWebhookListener(dump, dump_listener)
 
@@ -139,7 +140,7 @@ func TestShouldNotSendWebhook(t *testing.T) {
 	done := make(chan os.Signal, 1)
 	dump := make(chan bool, 1)
 
-	go CreateServer(&addr, server_port, done, webhook_tracker.NewLocalWebhookState())
+	go server.CreateServer(&addr, server_port, done, webhook_tracker.NewLocalWebhookState())
 	go simpleWebhookListener(c, target_listener)
 	go simpleWebhookListener(dump, dump_listener)
 
@@ -212,7 +213,7 @@ func TestStringComparison(t *testing.T) {
 	done := make(chan os.Signal, 1)
 	dump := make(chan bool, 1)
 
-	go CreateServer(&addr, server_port, done, webhook_tracker.NewLocalWebhookState())
+	go server.CreateServer(&addr, server_port, done, webhook_tracker.NewLocalWebhookState())
 	go simpleWebhookListener(c, target_listener)
 	go simpleWebhookListener(dump, dump_listener)
 

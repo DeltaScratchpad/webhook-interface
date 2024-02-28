@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"fmt"
 	go_system_api "github.com/DeltaScratchpad/go-system-api"
+	"os"
 
 	// jsoniter is used for increased performance.
 	// The standard library would also work, if dependencies are not permitted.
 	jsoniter "github.com/json-iterator/go"
 
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -28,7 +28,7 @@ func LogError(err string, event *go_system_api.ProcessingEvent) {
 		}
 		jsonData, err := json.Marshal(errorBody)
 		if err != nil {
-			log.Printf("Error marshalling error body: %s \n", err)
+			_, _ = os.Stderr.WriteString(fmt.Sprintf("Error marshalling error body: %s \n", err))
 			return
 		}
 		for i := 1; i < 4; i++ {
@@ -36,11 +36,11 @@ func LogError(err string, event *go_system_api.ProcessingEvent) {
 			if err == nil && r.StatusCode == 200 {
 				return
 			} else {
-				log.Printf("Error logging error: %s \n", err)
+				_, _ = os.Stderr.WriteString(fmt.Sprintf("Error logging error: %s \n", err))
 			}
 		}
 	} else {
-		log.Printf("Error URL was nil for event. Won't be able to log errors.")
+		_, _ = os.Stderr.WriteString("Error URL was nil for event. Won't be able to log errors.")
 	}
 }
 
@@ -50,7 +50,7 @@ func ForwardEvent(event *go_system_api.ProcessingEvent) {
 
 	jsonData, err := json.Marshal(event)
 	if err != nil {
-		log.Printf("Error marshalling event: %s \n", err)
+		_, _ = os.Stderr.WriteString(fmt.Sprintf("Error marshalling event: %s \n", err))
 		LogError(fmt.Sprintf("Failed to serialise event: %s", err), event)
 		return
 	}
@@ -60,7 +60,7 @@ func ForwardEvent(event *go_system_api.ProcessingEvent) {
 		if err == nil && r.StatusCode == 200 {
 			return
 		} else {
-			log.Printf("Error forwarding event: %s \n", err)
+			_, _ = os.Stderr.WriteString(fmt.Sprintf("Error forwarding event: %s \n", err))
 		}
 	}
 
@@ -70,7 +70,7 @@ func ParseProcessingEvent(w http.ResponseWriter, r *http.Request) (go_system_api
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 	var query go_system_api.ProcessingEvent
 	if err := json.NewDecoder(r.Body).Decode(&query); err != nil {
-		log.Printf("Error decoding query: %s \n", err)
+		_, _ = os.Stderr.WriteString(fmt.Sprintf("Error decoding query: %s \n", err))
 		InternalServerErrorHandler(w, r)
 		//TODO! Forward event
 		return go_system_api.ProcessingEvent{}, nil
@@ -139,7 +139,6 @@ func GetIntValue(event *go_system_api.EventData, field string) (int, error) {
 		}
 	default:
 		if value, ok := event.Derived[field]; ok {
-			//log.Printf("field type: %T\n", value)
 			switch value := value.(type) {
 			case int:
 				return value, nil
