@@ -5,8 +5,9 @@ package cmd
 
 import (
 	"fmt"
-	webhook_tracker "github.com/DeltaScratchpad/webhook-interface/webhook-tracker"
 	"os"
+
+	webhook_tracker "github.com/DeltaScratchpad/webhook-interface/webhook-tracker"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -52,6 +53,28 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	port = serverCmd.PersistentFlags().Uint16P("port", "p", 80, "Port to listen on")
+	_ = viper.BindPFlag("PORT", serverCmd.PersistentFlags().Lookup("port"))
+
+	var _ = serverCmd.PersistentFlags().StringP("db-url", "d", "", "Database URL")
+	_ = viper.BindPFlag("DB_URL", serverCmd.PersistentFlags().Lookup("db-url"))
+	var db_url_env = os.Getenv("DB_URL")
+	db_url_lookup := serverCmd.PersistentFlags().Lookup("db-url")
+	var db_url string
+	if db_url_lookup == nil || db_url_lookup.Value.String() == "" {
+		db_url = db_url_env
+	} else {
+		db_url = db_url_lookup.Value.String()
+	}
+
+	if db_url == "" {
+		_, _ = os.Stderr.WriteString("No DB URL provided, using in-memory storage")
+		state = webhook_tracker.NewLocalWebhookState()
+	} else {
+		_, _ = os.Stderr.WriteString("Using DB")
+		state = webhook_tracker.NewMySqlState(db_url)
+	}
 }
 
 // initConfig reads in config file and ENV variables if set.

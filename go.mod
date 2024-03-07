@@ -4,8 +4,11 @@ go 1.21.6
 
 require (
 	github.com/DeltaScratchpad/go-system-api v0.1.1
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/json-iterator/go v1.1.12
+	github.com/spf13/cobra v1.8.0
+	github.com/spf13/viper v1.18.2
 )
 
 require (
@@ -22,9 +25,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
-	github.com/spf13/cobra v1.8.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.18.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect

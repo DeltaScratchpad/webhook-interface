@@ -3,18 +3,21 @@ package helpers
 import (
 	"bytes"
 	"fmt"
-	go_system_api "github.com/DeltaScratchpad/go-system-api"
 	"os"
+
+	go_system_api "github.com/DeltaScratchpad/go-system-api"
 
 	// jsoniter is used for increased performance.
 	// The standard library would also work, if dependencies are not permitted.
 	jsoniter "github.com/json-iterator/go"
 
+	"crypto/tls"
 	"net/http"
 	"strconv"
 )
 
 func LogError(err string, event *go_system_api.ProcessingEvent) {
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 	var err_url = event.Commands.ErrorUrl
 	if err_url != "" {

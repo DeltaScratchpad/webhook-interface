@@ -2,11 +2,13 @@ package processing
 
 import (
 	"fmt"
-	"github.com/DeltaScratchpad/go-system-api"
-	"github.com/DeltaScratchpad/webhook-interface/helpers"
-	"github.com/DeltaScratchpad/webhook-interface/webhook-tracker"
+	"os"
 	"regexp"
 	"strconv"
+
+	go_system_api "github.com/DeltaScratchpad/go-system-api"
+	"github.com/DeltaScratchpad/webhook-interface/helpers"
+	webhook_tracker "github.com/DeltaScratchpad/webhook-interface/webhook-tracker"
 )
 
 func ProcessProcessingEvent(query *go_system_api.ProcessingEvent, state webhook_tracker.WebhookState) {
@@ -41,6 +43,7 @@ func ProcessProcessingEvent(query *go_system_api.ProcessingEvent, state webhook_
 	// Under a race condition, multiple could be sent.
 	//TODO: Would need distributed locking to resolve.
 	if result && !state.HasBeenCalled(webhook, query.Commands.QueryId) {
+		os.Stderr.WriteString(fmt.Sprintf("Webhook broker: Calling webhook: %s\n", webhook))
 		err := helpers.SendGetWebhook(webhook)
 		if err != nil {
 			state.IncrementCallCount(webhook, query.Commands.QueryId)

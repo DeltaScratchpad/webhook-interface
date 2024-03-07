@@ -5,12 +5,12 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/DeltaScratchpad/webhook-interface/server"
-	webhook_tracker "github.com/DeltaScratchpad/webhook-interface/webhook-tracker"
-	"github.com/spf13/viper"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/DeltaScratchpad/webhook-interface/server"
+	webhook_tracker "github.com/DeltaScratchpad/webhook-interface/webhook-tracker"
 
 	"github.com/spf13/cobra"
 )
@@ -37,6 +37,7 @@ to quickly create a Cobra application.`,
 			setPort = *port
 		}
 
+
 		server.CreateServer(nil, fmt.Sprintf("%d", setPort), done, state)
 	},
 }
@@ -54,17 +55,4 @@ func init() {
 	// is called directly, e.g.:
 	// serverCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	port = serverCmd.PersistentFlags().Uint16P("port", "p", 80, "Port to listen on")
-	_ = viper.BindPFlag("PORT", serverCmd.PersistentFlags().Lookup("port"))
-
-	var db_url = serverCmd.PersistentFlags().StringP("db-url", "d", "", "Database URL")
-	_ = viper.BindPFlag("DB_URL", serverCmd.PersistentFlags().Lookup("db-url"))
-
-	if db_url == nil || *db_url == "" {
-		fmt.Println("No DB URL provided, using in-memory storage")
-		state = webhook_tracker.NewLocalWebhookState()
-	} else {
-		fmt.Println("Using DB URL: ", *db_url)
-		state = webhook_tracker.NewMySqlState(*db_url)
-	}
 }

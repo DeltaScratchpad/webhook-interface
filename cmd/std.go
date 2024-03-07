@@ -6,11 +6,10 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+
 	go_system_api "github.com/DeltaScratchpad/go-system-api"
 	"github.com/DeltaScratchpad/webhook-interface/processing"
-	webhook_tracker "github.com/DeltaScratchpad/webhook-interface/webhook-tracker"
-	"github.com/spf13/viper"
-	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -26,7 +25,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		_, _ = os.Stderr.WriteString("Listening for input from stdin.")
+		_, _ = os.Stderr.WriteString("Webhook starting!.\n")
 		runStd()
 	},
 }
@@ -44,33 +43,33 @@ func init() {
 	// is called directly, e.g.:
 	// stdCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	var db_url = serverCmd.PersistentFlags().StringP("db-url", "d", "", "Database URL")
-	_ = viper.BindPFlag("DB_URL", serverCmd.PersistentFlags().Lookup("db-url"))
-
-	if db_url == nil || *db_url == "" {
-		fmt.Println("No DB URL provided, using in-memory storage")
-		state = webhook_tracker.NewLocalWebhookState()
-	} else {
-		fmt.Println("Using DB URL: ", *db_url)
-		state = webhook_tracker.NewMySqlState(*db_url)
-	}
 }
 
 func runStd() {
 	if isInputFromPipe() {
 		var query go_system_api.ProcessingEvent
-		err := json.NewDecoder(os.Stdin).Decode(&query)
-		if err != nil {
-			_, _ = os.Stderr.WriteString(fmt.Sprintf("Error: %s", err))
-			return
+		decoder := json.NewDecoder(os.Stdin)
+		encoder := json.NewEncoder(os.Stdout)
+		for {
+			err := decoder.Decode(&query)
+			if err != nil {
+				if err.Error() == "EOF" {
+					break
+				} else {
+					_, _ = os.Stderr.WriteString(fmt.Sprintf("Error when reading stdin: %s\n", err))
+				}
+			}
+			processing.ProcessProcessingEvent(&query, state)
+			query.Commands.Step += 1
+			err = encoder.Encode(&query)
+			if err != nil {
+				_, _ = os.Stderr.WriteString(fmt.Sprintf("Error when reading stdout: %s\n", err))
+				break
+			}
 		}
-		defer func() {
-			PushToStdOut(&query)
-		}()
-		processing.ProcessProcessingEvent(&query, state)
 
 	} else {
-		_, _ = os.Stderr.WriteString("No input from pipe.")
+		_, _ = os.Stderr.WriteString("No input from pipe.\n")
 	}
 }
 
@@ -82,7 +81,7 @@ func isInputFromPipe() bool {
 func PushToStdOut(event *go_system_api.ProcessingEvent) {
 	err := json.NewEncoder(os.Stdout).Encode(event)
 	if err != nil {
-		_, _ = os.Stderr.WriteString(fmt.Sprintf("Error: %s", err))
+		_, _ = os.Stderr.WriteString(fmt.Sprintf("Error: %s\n", err))
 		return
 	}
 }
